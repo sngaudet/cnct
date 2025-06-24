@@ -8,14 +8,16 @@ import RegEmailPass from "./app/screens/RegEmailPass";
 import RegProfile from "./app/screens/RegProfile";
 import RegHeightWeight from "./app/screens/RegHeightWeight";
 import RegPersonalDetails from "./app/screens/RegPersonalDetails";
+import RegHobbies from "./app/screens/RegHobbies";
 import Details from "./app/screens/Details";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { useEffect, useState } from "react";
-import { FIREBASE_AUTH } from "./FirebaseConfig";
+import { FIREBASE_AUTH, FIRESTORE_DB } from "./FirebaseConfig";
 import {
   InsideStackParamList,
   RootStackParamList,
 } from "./app/navigation/types";
+import { doc, getDoc } from "firebase/firestore";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -34,10 +36,25 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    onAuthStateChanged(FIREBASE_AUTH, (user) => {
-      console.log("user", user);
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, async (user) => {
+      if (user) {
+        try {
+          const userDoc = await getDoc(doc(FIRESTORE_DB, "users", user.uid));
+          if (userDoc.exists() && userDoc.data().profileComplete) {
+            setUser(user);
+          } else {
+            setUser(null); // Don't treat them as fully registered yet
+          }
+        } catch (err) {
+          console.error("Error checking profileComplete:", err);
+          setUser(null);
+        }
+      } else {
+        setUser(null);
+      }
     });
+
+    return unsubscribe;
   }, []);
 
   return (
@@ -70,6 +87,11 @@ export default function App() {
               name="RegPersonalDetails"
               component={RegPersonalDetails}
               options={{ title: "Register" }}
+            />
+            <Stack.Screen
+              name="RegHobbies"
+              component={RegHobbies}
+              options={{ title: "Hobbies" }}
             />
             <Stack.Screen
               name="RegProfile"

@@ -8,6 +8,15 @@ export type RootStackParamList = {
     height: string;
     weight: string;
   };
+  RegHobbies: {
+    email: string;
+    password: string;
+    height: string;
+    weight: string;
+    religion: string;
+    smoker: string;
+    drinker: string;
+  };
   RegProfile: {
     email: string;
     password: string;
@@ -16,6 +25,7 @@ export type RootStackParamList = {
     religion: string;
     smoker: string;
     drinker: string;
+    hobbies: string[];
   };
   Inside: undefined;
 };

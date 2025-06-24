@@ -17,8 +17,16 @@ import { doc, setDoc } from "firebase/firestore";
 type Props = NativeStackScreenProps<RootStackParamList, "RegProfile">;
 
 const RegProfile = ({ route, navigation }: Props) => {
-  const { email, password, height, weight, religion, smoker, drinker } =
-    route.params;
+  const {
+    email,
+    password,
+    height,
+    weight,
+    religion,
+    smoker,
+    drinker,
+    hobbies,
+  } = route.params;
   console.log("Incoming:", {
     email,
     password,
@@ -27,6 +35,7 @@ const RegProfile = ({ route, navigation }: Props) => {
     religion,
     smoker,
     drinker,
+    hobbies,
   });
   const [bio, setBio] = useState("");
   const [loading, setLoading] = useState(false);
@@ -34,6 +43,13 @@ const RegProfile = ({ route, navigation }: Props) => {
   const handleSubmit = async () => {
     setLoading(true);
     try {
+      if (bio.trim() === "") {
+        alert("Your bio is empty!");
+        setLoading(false);
+        return;
+      }
+
+      // Try to create user here
       const userCredential = await createUserWithEmailAndPassword(
         FIREBASE_AUTH,
         email,
@@ -49,21 +65,24 @@ const RegProfile = ({ route, navigation }: Props) => {
         religion,
         smoker,
         drinker,
+        hobbies,
         bio,
+        profileComplete: true,
         createdAt: new Date(),
       });
 
-      console.log("User created:", userCredential.user.uid);
-      console.log("Bio:", bio);
-
-      // You can now navigate to the inside/home screen
+      // Navigate to Inside/Home screen
       navigation.reset({
         index: 0,
         routes: [{ name: "Inside" }],
       });
     } catch (error: any) {
-      console.log(error);
-      alert("Account creation failed: " + error.message);
+      if (error.code === "auth/email-already-in-use") {
+        alert("This email is already registered. Please use another one.");
+      } else {
+        alert("Account creation failed: " + error.message);
+      }
+      console.error("Registration error:", error);
     } finally {
       setLoading(false);
     }

@@ -12,6 +12,7 @@ import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signOut,
 } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -35,6 +36,12 @@ const RegEmailPass = () => {
       alert("Passwords do not match");
       return;
     }
+    if (email === "" || password === "" || confirmPassword === "") {
+      alert("Please enter all fields");
+      return;
+    }
+
+    // Navigate to next screen with collected email/password
     navigation.navigate("RegHeightWeight", { email, password });
   };
 

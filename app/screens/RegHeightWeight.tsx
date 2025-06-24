@@ -4,6 +4,7 @@ import {
   TextInput,
   Button,
   KeyboardAvoidingView,
+  Text,
 } from "react-native";
 import React, { useState } from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -20,19 +21,28 @@ const RegHeightWeight = ({ navigation, route }: Props) => {
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
 
-  const heightOptions = [];
+  const heightOptions = ["Select..."];
   for (let feet = 2; feet <= 9; feet++) {
     for (let inches = 0; inches <= 12; inches++) {
       heightOptions.push(`${feet}'${inches}"`);
     }
   }
 
-  const weightOptions = [];
+  const weightOptions = ["Select..."];
   for (let pounds = 90; pounds <= 500; pounds++) {
     weightOptions.push(`${pounds} pounds`);
   }
 
   const nextStep = () => {
+    if (
+      height === "Select..." ||
+      weight === "Select..." ||
+      height === "" ||
+      weight === ""
+    ) {
+      alert("Please enter all fields");
+      return;
+    }
     navigation.navigate("RegPersonalDetails", {
       email,
       password,
@@ -44,6 +54,7 @@ const RegHeightWeight = ({ navigation, route }: Props) => {
   return (
     <View style={styles.container}>
       <KeyboardAvoidingView behavior="padding">
+        <Text style={styles.label}>Height</Text>
         <Picker
           selectedValue={height}
           onValueChange={(itemValue) => setHeight(itemValue)}
@@ -53,6 +64,7 @@ const RegHeightWeight = ({ navigation, route }: Props) => {
             <Picker.Item label={opt} value={opt} key={opt} />
           ))}
         </Picker>
+        <Text style={styles.label}>Weight</Text>
         <Picker
           selectedValue={weight}
           onValueChange={(itemValue) => setWeight(itemValue)}
@@ -88,5 +100,11 @@ const styles = StyleSheet.create({
     height: 150,
     width: "100%",
     marginVertical: 8,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 4,
+    marginTop: 16,
   },
 });
