@@ -34,8 +34,16 @@ const hobbiesList = [
 type Props = NativeStackScreenProps<RootStackParamList, "RegHobbies">;
 
 const RegHobbies = ({ route, navigation }: Props) => {
-  const { email, password, height, weight, religion, smoker, drinker } =
-    route.params;
+  const {
+    email,
+    password,
+    height,
+    weight,
+    location,
+    religion,
+    smoker,
+    drinker,
+  } = route.params;
 
   const [selectedHobbies, setSelectedHobbies] = useState<string[]>([]);
 
@@ -51,6 +59,7 @@ const RegHobbies = ({ route, navigation }: Props) => {
       password,
       height,
       weight,
+      location,
       religion,
       smoker,
       drinker,

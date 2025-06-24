@@ -16,7 +16,7 @@ import { Picker } from "@react-native-picker/picker";
 type Props = NativeStackScreenProps<RootStackParamList, "RegHeightWeight">;
 
 const RegHeightWeight = ({ navigation, route }: Props) => {
-  const { email, password } = route.params;
+  const { email, password, location } = route.params;
 
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
@@ -48,6 +48,7 @@ const RegHeightWeight = ({ navigation, route }: Props) => {
       password,
       height,
       weight,
+      location,
     });
   };
 

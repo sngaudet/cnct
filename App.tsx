@@ -9,6 +9,7 @@ import RegProfile from "./app/screens/RegProfile";
 import RegHeightWeight from "./app/screens/RegHeightWeight";
 import RegPersonalDetails from "./app/screens/RegPersonalDetails";
 import RegHobbies from "./app/screens/RegHobbies";
+import RegLocation from "./app/screens/RegLocation";
 import Details from "./app/screens/Details";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { useEffect, useState } from "react";
@@ -92,6 +93,11 @@ export default function App() {
               name="RegHobbies"
               component={RegHobbies}
               options={{ title: "Hobbies" }}
+            />
+            <Stack.Screen
+              name="RegLocation"
+              component={RegLocation}
+              options={{ title: "Location" }}
             />
             <Stack.Screen
               name="RegProfile"

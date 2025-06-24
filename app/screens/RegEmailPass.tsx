@@ -54,7 +54,7 @@ const RegEmailPass = () => {
       await userCred.user.delete();
 
       // Navigate forward with safe email/password
-      navigation.navigate("RegHeightWeight", { email, password });
+      navigation.navigate("RegLocation", { email, password });
     } catch (error: any) {
       if (error.code === "auth/email-already-in-use") {
         alert("This email is already registered. Please use another one.");

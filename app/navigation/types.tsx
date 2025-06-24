@@ -1,12 +1,24 @@
 export type RootStackParamList = {
   Login: undefined;
   RegEmailPass: undefined;
-  RegHeightWeight: { email: string; password: string };
+  RegLocation: { email: string; password: string };
+  RegHeightWeight: {
+    email: string;
+    password: string;
+    location: {
+      latitude: number;
+      longitude: number;
+    };
+  };
   RegPersonalDetails: {
     email: string;
     password: string;
     height: string;
     weight: string;
+    location: {
+      latitude: number;
+      longitude: number;
+    };
   };
   RegHobbies: {
     email: string;
@@ -16,6 +28,10 @@ export type RootStackParamList = {
     religion: string;
     smoker: string;
     drinker: string;
+    location: {
+      latitude: number;
+      longitude: number;
+    };
   };
   RegProfile: {
     email: string;
@@ -26,6 +42,10 @@ export type RootStackParamList = {
     smoker: string;
     drinker: string;
     hobbies: string[];
+    location: {
+      latitude: number;
+      longitude: number;
+    };
   };
   Inside: undefined;
 };

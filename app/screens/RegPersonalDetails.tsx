@@ -16,7 +16,7 @@ import { Picker } from "@react-native-picker/picker";
 type Props = NativeStackScreenProps<RootStackParamList, "RegPersonalDetails">;
 
 const RegPersonalDetails = ({ navigation, route }: Props) => {
-  const { email, password, height, weight } = route.params;
+  const { email, password, height, weight, location } = route.params;
 
   const [religion, setReligion] = useState("");
   const [smoker, setSmoker] = useState("");
@@ -47,6 +47,7 @@ const RegPersonalDetails = ({ navigation, route }: Props) => {
       religion,
       smoker,
       drinker,
+      location,
     });
   };
 
