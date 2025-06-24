@@ -26,6 +26,10 @@ const RegPersonalDetails = ({ navigation, route }: Props) => {
   const drinkerOptions = ["Select...", "Yes", "Occasionally", "Never"];
 
   const nextStep = () => {
+    if (religion === "") {
+      alert("Please select a religion.");
+      return;
+    }
     if (
       smoker === "Select..." ||
       drinker === "Select..." ||
