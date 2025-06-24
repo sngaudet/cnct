@@ -31,7 +31,7 @@ const RegEmailPass = () => {
   const [loading, setLoading] = useState(false);
   const auth = FIREBASE_AUTH;
 
-  const signUp = () => {
+  const signUp = async () => {
     if (password !== confirmPassword) {
       alert("Passwords do not match");
       return;
@@ -41,8 +41,29 @@ const RegEmailPass = () => {
       return;
     }
 
-    // Navigate to next screen with collected email/password
-    navigation.navigate("RegHeightWeight", { email, password });
+    setLoading(true);
+    try {
+      // Attempt to create the user
+      const userCred = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      // Immediately delete the temporary user (so final registration can recreate later)
+      await userCred.user.delete();
+
+      // Navigate forward with safe email/password
+      navigation.navigate("RegHeightWeight", { email, password });
+    } catch (error: any) {
+      if (error.code === "auth/email-already-in-use") {
+        alert("This email is already registered. Please use another one.");
+      } else {
+        alert("Error: " + error.message);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
