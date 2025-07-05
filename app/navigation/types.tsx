@@ -8,6 +8,8 @@ export type RootStackParamList = {
     location: {
       latitude: number;
       longitude: number;
+      city?: string;
+      state?: string;
     };
   };
   RegPersonalDetails: {
@@ -18,6 +20,8 @@ export type RootStackParamList = {
     location: {
       latitude: number;
       longitude: number;
+      city?: string;
+      state?: string;
     };
   };
   RegHobbies: {
@@ -31,6 +35,8 @@ export type RootStackParamList = {
     location: {
       latitude: number;
       longitude: number;
+      city?: string;
+      state?: string;
     };
   };
   RegProfile: {
@@ -45,6 +51,8 @@ export type RootStackParamList = {
     location: {
       latitude: number;
       longitude: number;
+      city?: string;
+      state?: string;
     };
   };
   Inside: undefined;

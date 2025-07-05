@@ -5,67 +5,67 @@ import {
   Button,
   ActivityIndicator,
   StyleSheet,
-  Platform,
 } from "react-native";
 import * as Location from "expo-location";
 import { RootStackParamList } from "../navigation/types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-type Props = NativeStackScreenProps<RootStackParamList, "RegLocation">;
+const OPENCAGE_API_KEY = "0c3fe9f7e0604478bda0d6c7e9752428"; // replace with your actual key or load from env
 
 type SimpleCoords = {
   latitude: number;
   longitude: number;
 };
 
+type FullLocation = {
+  coords: SimpleCoords;
+  address?: {
+    city?: string;
+    state?: string;
+  };
+};
+
+type Props = NativeStackScreenProps<RootStackParamList, "RegLocation">;
+
 const RegLocation = ({ navigation, route }: Props) => {
-  const [location, setLocation] = useState<SimpleCoords | null>(null);
+  const [location, setLocation] = useState<FullLocation | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchLocation = async () => {
+    (async () => {
       setLoading(true);
-
-      if (Platform.OS === "web") {
-        // Web fallback using browser geolocation
-        if (!navigator.geolocation) {
-          alert("Geolocation is not supported by your browser.");
-          setLoading(false);
-          return;
-        }
-
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            setLocation({
-              latitude: pos.coords.latitude,
-              longitude: pos.coords.longitude,
-            });
-            setLoading(false);
-          },
-          (error) => {
-            alert("Failed to get location: " + error.message);
-            setLoading(false);
-          }
-        );
-      } else {
-        // iOS/Android using expo-location
+      try {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== "granted") {
-          alert("Permission to access location was denied.");
+          alert("Permission to access location was denied");
           setLoading(false);
           return;
         }
 
         const loc = await Location.getCurrentPositionAsync({});
+        const { latitude, longitude } = loc.coords;
+
+        const response = await fetch(
+          `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${OPENCAGE_API_KEY}`
+        );
+        const data = await response.json();
+
+        const components = data.results[0]?.components;
+        const city =
+          components?.city || components?.town || components?.village || "";
+        const state = components?.state || "";
+
         setLocation({
-          latitude: loc.coords.latitude,
-          longitude: loc.coords.longitude,
+          coords: { latitude, longitude },
+          address: { city, state },
         });
+      } catch (error) {
+        console.error("Location error:", error);
+        alert("Failed to get location.");
+      } finally {
         setLoading(false);
       }
-    };
-
-    fetchLocation();
+    })();
   }, []);
 
   const handleNext = () => {
@@ -76,7 +76,12 @@ const RegLocation = ({ navigation, route }: Props) => {
 
     navigation.navigate("RegHeightWeight", {
       ...route.params,
-      location,
+      location: {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        city: location.address?.city,
+        state: location.address?.state,
+      },
     });
   };
 
@@ -86,8 +91,14 @@ const RegLocation = ({ navigation, route }: Props) => {
         <ActivityIndicator size="large" />
       ) : location ? (
         <>
-          <Text>Latitude: {location.latitude}</Text>
-          <Text>Longitude: {location.longitude}</Text>
+          <Text>Latitude: {location.coords.latitude}</Text>
+          <Text>Longitude: {location.coords.longitude}</Text>
+          {location.address && (
+            <>
+              <Text>City: {location.address.city}</Text>
+              <Text>State: {location.address.state}</Text>
+            </>
+          )}
           <Button title="Next" onPress={handleNext} />
         </>
       ) : (
