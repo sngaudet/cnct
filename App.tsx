@@ -19,6 +19,8 @@ import {
   RootStackParamList,
 } from "./app/navigation/types";
 import { doc, getDoc } from "firebase/firestore";
+import ChatList from "./app/screens/ChatList";
+import ChatScreen from "./app/screens/ChatScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -27,8 +29,10 @@ const InsideStack = createNativeStackNavigator<InsideStackParamList>();
 function InsideLayout() {
   return (
     <InsideStack.Navigator>
-      <InsideStack.Screen name="My Todos" component={List} />
+      <InsideStack.Screen name="CNCT" component={List} />
       <InsideStack.Screen name="details" component={Details} />
+      <InsideStack.Screen name="ChatList" component={ChatList} />
+      <InsideStack.Screen name="ChatScreen" component={ChatScreen} />
     </InsideStack.Navigator>
   );
 }

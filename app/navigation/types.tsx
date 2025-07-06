@@ -59,6 +59,8 @@ export type RootStackParamList = {
 };
 
 export type InsideStackParamList = {
-  "My Todos": undefined;
+  CNCT: undefined;
   details: undefined;
+  ChatList: undefined;
+  ChatScreen: { chatId: string | null; userId: string };
 };
