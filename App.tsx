@@ -21,6 +21,7 @@ import {
 import { doc, getDoc } from "firebase/firestore";
 import ChatList from "./app/screens/ChatList";
 import ChatScreen from "./app/screens/ChatScreen";
+import Tabs from "./app/navigation/Tabs";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -68,7 +69,7 @@ export default function App() {
         {user ? (
           <Stack.Screen
             name="Inside"
-            component={InsideLayout}
+            component={Tabs}
             options={{ headerShown: false }}
           />
         ) : (
