@@ -70,6 +70,7 @@ const RegProfile = ({ route, navigation }: Props) => {
         drinker,
         hobbies,
         bio,
+        isMatched: false,
         profileComplete: true,
         createdAt: new Date(),
       });
