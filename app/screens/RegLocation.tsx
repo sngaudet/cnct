@@ -91,12 +91,16 @@ const RegLocation = ({ navigation, route }: Props) => {
         <ActivityIndicator size="large" />
       ) : location ? (
         <>
-          <Text>Latitude: {location.coords.latitude}</Text>
-          <Text>Longitude: {location.coords.longitude}</Text>
+          {/* <Text>Latitude: {location.coords.latitude}</Text>
+          <Text>Longitude: {location.coords.longitude}</Text> */}
           {location.address && (
             <>
-              <Text>City: {location.address.city}</Text>
-              <Text>State: {location.address.state}</Text>
+              <Text style={styles.headerText}>
+                We show you as being located in
+              </Text>
+              <Text style={styles.text}>
+                {location.address.city}, {location.address.state}
+              </Text>
             </>
           )}
           <Button title="Next" onPress={handleNext} />
@@ -116,5 +120,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
+  },
+  text: {
+    fontSize: 16,
+    textAlign: "center",
+    marginBottom: 5,
+  },
+  headerText: {
+    fontSize: 22,
+    textAlign: "center",
+    marginBottom: 8,
   },
 });

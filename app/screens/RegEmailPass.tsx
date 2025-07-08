@@ -69,6 +69,8 @@ const RegEmailPass = () => {
   return (
     <View style={styles.container}>
       <KeyboardAvoidingView behavior="padding">
+        <Text style={styles.welcome}>Welcome to CNCT!</Text>
+        <Text style={styles.headerText}>Create Your Account</Text>
         <TextInput
           value={email}
           style={styles.input}
@@ -97,7 +99,7 @@ const RegEmailPass = () => {
           <ActivityIndicator size="large" color="#0000ff" />
         ) : (
           <>
-            <Button title="Create Account" onPress={signUp} />
+            <Button title="Begin Registration" onPress={signUp} />
           </>
         )}
       </KeyboardAvoidingView>
@@ -120,5 +122,17 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     padding: 10,
     backgroundColor: "#fff",
+  },
+  headerText: {
+    fontSize: 22,
+    textAlign: "center",
+    marginBottom: 20,
+    fontWeight: "bold",
+  },
+  welcome: {
+    fontSize: 40,
+    textAlign: "center",
+    marginBottom: 40,
+    fontWeight: "bold",
   },
 });

@@ -55,6 +55,10 @@ const RegHeightWeight = ({ navigation, route }: Props) => {
   return (
     <View style={styles.container}>
       <KeyboardAvoidingView behavior="padding">
+        <Text style={styles.headerText}>
+          Now, let's go ahead and get some information about you so we can make
+          the ideal match!
+        </Text>
         <Text style={styles.label}>Height</Text>
         <Picker
           selectedValue={height}
@@ -107,5 +111,10 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginBottom: 4,
     marginTop: 16,
+  },
+  headerText: {
+    fontSize: 22,
+    textAlign: "center",
+    marginBottom: 8,
   },
 });
