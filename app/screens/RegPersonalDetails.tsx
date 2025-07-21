@@ -1,17 +1,14 @@
-import {
-  View,
-  StyleSheet,
-  TextInput,
-  Button,
-  Text,
-  KeyboardAvoidingView,
-} from "react-native";
-import React, { useState } from "react";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../navigation/types";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Picker } from "@react-native-picker/picker";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import React, { useState } from "react";
+import {
+  Button,
+  KeyboardAvoidingView,
+  StyleSheet,
+  Text,
+  View
+} from "react-native";
+import { RootStackParamList } from "../navigation/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "RegPersonalDetails">;
 
@@ -22,6 +19,7 @@ const RegPersonalDetails = ({ navigation, route }: Props) => {
   const [smoker, setSmoker] = useState("");
   const [drinker, setDrinker] = useState("");
 
+  const religionOptions = ["Christian", "Jewish", "Muslim", "Hindu", "Buddhist", "Sikh", "Atheist", "Agnostic", "Other"];
   const smokerOptions = ["Select...", "Yes", "Occasionally", "Never"];
   const drinkerOptions = ["Select...", "Yes", "Occasionally", "Never"];
 
@@ -54,12 +52,16 @@ const RegPersonalDetails = ({ navigation, route }: Props) => {
   return (
     <View style={styles.container}>
       <KeyboardAvoidingView behavior="padding">
-        <TextInput
-          value={religion}
-          style={styles.input}
-          placeholder="Religion"
-          onChangeText={setReligion}
-        />
+        <Text style={styles.label}>Religion</Text>
+        <Picker
+          selectedValue={religion}
+          onValueChange={(itemValue) => setReligion(itemValue)}
+          style={styles.picker}
+        >
+          {religionOptions.map((opt) => (
+            <Picker.Item label={opt} value={opt} key={opt} />
+          ))}
+        </Picker>
         <Text style={styles.label}>Smoker</Text>
         <Picker
           selectedValue={smoker}
