@@ -1,18 +1,17 @@
 // app/screens/RegProfile.tsx
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 import React, { useState } from "react";
 import {
-  View,
-  TextInput,
   Button,
+  KeyboardAvoidingView,
   StyleSheet,
   Text,
-  KeyboardAvoidingView,
+  TextInput
 } from "react-native";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../navigation/types";
-import { createUserWithEmailAndPassword } from "firebase/auth";
 import { FIREBASE_AUTH, FIRESTORE_DB } from "../../FirebaseConfig";
-import { doc, setDoc } from "firebase/firestore";
+import { RootStackParamList } from "../navigation/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "RegProfile">;
 
@@ -27,6 +26,7 @@ const RegProfile = ({ route, navigation }: Props) => {
     smoker,
     drinker,
     hobbies,
+    preferences,
   } = route.params;
   console.log("Incoming:", {
     email,
@@ -69,6 +69,7 @@ const RegProfile = ({ route, navigation }: Props) => {
         smoker,
         drinker,
         hobbies,
+        preferences,
         bio,
         isMatched: false,
         profileComplete: true,

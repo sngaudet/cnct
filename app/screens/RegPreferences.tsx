@@ -56,7 +56,7 @@ const RegPreferences = ({ route, navigation }: Props) => {
     <View style={styles.container}>
       <Text style={styles.header}>Your Preferences</Text>
 
-      <Text style={styles.label}>Max Distance (km or miles):</Text>
+      <Text style={styles.label}>What is the maximum distance you would travel to date?</Text>
       <TextInput
         style={styles.input}
         keyboardType="numeric"
@@ -65,7 +65,7 @@ const RegPreferences = ({ route, navigation }: Props) => {
       />
 
       <View style={styles.preferenceRow}>
-        <Text>Is partner's religion important?</Text>
+        <Text>Is partner's religion important to you?</Text>
         <Switch
           value={partnerReligionImportant}
           onValueChange={setPartnerReligionImportant}
@@ -73,12 +73,12 @@ const RegPreferences = ({ route, navigation }: Props) => {
       </View>
 
       <View style={styles.preferenceRow}>
-        <Text>Okay if partner smokes?</Text>
+        <Text>Does it matter to you if your partner smokes?</Text>
         <Switch value={partnerSmokesOk} onValueChange={setPartnerSmokesOk} />
       </View>
 
       <View style={styles.preferenceRow}>
-        <Text>Okay if partner drinks?</Text>
+        <Text>Does it matter to you if your partner drinks?</Text>
         <Switch value={partnerDrinksOk} onValueChange={setPartnerDrinksOk} />
       </View>
 
