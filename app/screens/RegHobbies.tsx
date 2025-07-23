@@ -1,14 +1,14 @@
 // app/screens/RegHobbies.tsx
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-  Button,
-} from "react-native";
-import React, { useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import React, { useState } from "react";
+import {
+  Button,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { RootStackParamList } from "../navigation/types";
 
 const hobbiesList = [
@@ -54,7 +54,7 @@ const RegHobbies = ({ route, navigation }: Props) => {
   };
 
   const handleNext = () => {
-    navigation.navigate("RegProfile", {
+    navigation.navigate("RegPreferences", {
       email,
       password,
       height,

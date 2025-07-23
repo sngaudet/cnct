@@ -1,27 +1,26 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
-import Login from "./app/screens/Login";
-import List from "./app/screens/List";
-import RegEmailPass from "./app/screens/RegEmailPass";
-import RegProfile from "./app/screens/RegProfile";
-import RegHeightWeight from "./app/screens/RegHeightWeight";
-import RegPersonalDetails from "./app/screens/RegPersonalDetails";
-import RegHobbies from "./app/screens/RegHobbies";
-import RegLocation from "./app/screens/RegLocation";
-import Details from "./app/screens/Details";
 import { onAuthStateChanged, User } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { FIREBASE_AUTH, FIRESTORE_DB } from "./FirebaseConfig";
+import Tabs from "./app/navigation/Tabs";
 import {
   InsideStackParamList,
   RootStackParamList,
 } from "./app/navigation/types";
-import { doc, getDoc } from "firebase/firestore";
 import ChatList from "./app/screens/ChatList";
 import ChatScreen from "./app/screens/ChatScreen";
-import Tabs from "./app/navigation/Tabs";
+import Details from "./app/screens/Details";
+import List from "./app/screens/List";
+import Login from "./app/screens/Login";
+import RegEmailPass from "./app/screens/RegEmailPass";
+import RegHeightWeight from "./app/screens/RegHeightWeight";
+import RegHobbies from "./app/screens/RegHobbies";
+import RegLocation from "./app/screens/RegLocation";
+import RegPersonalDetails from "./app/screens/RegPersonalDetails";
+import RegPreferences from "./app/screens/RegPreferences";
+import RegProfile from "./app/screens/RegProfile";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -109,6 +108,12 @@ export default function App() {
               component={RegProfile}
               options={{ title: "Your Bio" }}
             />
+            <Stack.Screen
+  name="RegPreferences"
+  component={RegPreferences}
+  options={{ title: "Preferences" }}
+/>
+
           </>
         )}
       </Stack.Navigator>

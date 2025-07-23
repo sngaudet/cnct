@@ -1,3 +1,10 @@
+export type SimpleLocation = {
+  latitude: number;
+  longitude: number;
+  city?: string;
+  state?: string;
+};
+
 export type RootStackParamList = {
   Login: undefined;
   RegEmailPass: undefined;
@@ -39,6 +46,17 @@ export type RootStackParamList = {
       state?: string;
     };
   };
+    RegPreferences: {
+    email: string;
+    password: string;
+    height: string;
+    weight: string;
+    location: SimpleLocation;
+    religion: string;
+    smoker: string;
+    drinker: string;
+    hobbies: string[];
+  };
   RegProfile: {
     email: string;
     password: string;
@@ -54,6 +72,12 @@ export type RootStackParamList = {
       city?: string;
       state?: string;
     };
+    preferences: {
+    maxDistance: number;
+    religionImportant: boolean;
+    allowsSmoking: boolean;
+    allowsDrinking: boolean;
+  };
   };
   Inside: undefined;
 };
