@@ -1,18 +1,60 @@
-// app/screens/RegHobbies.tsx
+// app/screens/RegPreferences.tsx
+import { Picker } from "@react-native-picker/picker";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useState } from "react";
 import {
-    Button,
-    StyleSheet,
-    Switch,
-    Text,
-    TextInput,
-    View
+  Button,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { RootStackParamList } from "../navigation/types";
 
-
 type Props = NativeStackScreenProps<RootStackParamList, "RegPreferences">;
+
+const religionOptions = [
+  "Christian",
+  "Jewish",
+  "Muslim",
+  "Hindu",
+  "Buddhist",
+  "Sikh",
+  "Atheist",
+  "Agnostic",
+  "Other",
+];
+
+const YesNoSelector = ({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: boolean | null;
+  onChange: (val: boolean) => void;
+}) => {
+  return (
+    <View style={styles.preferenceBlock}>
+      <Text style={styles.label}>{label}</Text>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={[styles.button, value === true && styles.selected]}
+          onPress={() => onChange(true)}
+        >
+          <Text style={styles.buttonText}>Yes</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, value === false && styles.selected]}
+          onPress={() => onChange(false)}
+        >
+          <Text style={styles.buttonText}>No</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
 
 const RegPreferences = ({ route, navigation }: Props) => {
   const {
@@ -27,12 +69,28 @@ const RegPreferences = ({ route, navigation }: Props) => {
     hobbies,
   } = route.params;
 
-   const [maxDistance, setMaxDistance] = useState("25"); // miles or km
-  const [partnerReligionImportant, setPartnerReligionImportant] = useState(false);
-  const [partnerSmokesOk, setPartnerSmokesOk] = useState(true);
-  const [partnerDrinksOk, setPartnerDrinksOk] = useState(true);
+  const [maxDistance, setMaxDistance] = useState("25");
+  const [partnerReligionImportant, setPartnerReligionImportant] = useState<boolean | null>(null);
+  const [preferredPartnerReligion, setPreferredPartnerReligion] = useState("");
+  const [partnerSmokesOk, setPartnerSmokesOk] = useState<boolean | null>(null);
+  const [partnerDrinksOk, setPartnerDrinksOk] = useState<boolean | null>(null);
 
   const handleNext = () => {
+    if (
+      partnerReligionImportant === null ||
+      partnerSmokesOk === null ||
+      partnerDrinksOk === null
+    ) {
+      alert("Please answer all Yes/No questions.");
+      return;
+    }
+
+    if (partnerReligionImportant && preferredPartnerReligion.trim() === "") {
+  alert("Please specify the religion you prefer your partner to be.");
+  return;
+}
+
+
     navigation.navigate("RegProfile", {
       email,
       password,
@@ -46,13 +104,14 @@ const RegPreferences = ({ route, navigation }: Props) => {
       preferences: {
         maxDistance: parseInt(maxDistance),
         religionImportant: partnerReligionImportant,
+        preferredReligion: partnerReligionImportant ? preferredPartnerReligion : null,
         allowsSmoking: partnerSmokesOk,
         allowsDrinking: partnerDrinksOk,
-      }
+      },
     });
   };
 
-   return (
+  return (
     <View style={styles.container}>
       <Text style={styles.header}>Your Preferences</Text>
 
@@ -64,23 +123,40 @@ const RegPreferences = ({ route, navigation }: Props) => {
         onChangeText={setMaxDistance}
       />
 
-      <View style={styles.preferenceRow}>
-        <Text>Is partner's religion important to you?</Text>
-        <Switch
-          value={partnerReligionImportant}
-          onValueChange={setPartnerReligionImportant}
-        />
-      </View>
+      <YesNoSelector
+        label="Is your partner's religion important to you?"
+        value={partnerReligionImportant}
+        onChange={setPartnerReligionImportant}
+      />
 
-      <View style={styles.preferenceRow}>
-        <Text>Does it matter to you if your partner smokes?</Text>
-        <Switch value={partnerSmokesOk} onValueChange={setPartnerSmokesOk} />
-      </View>
+     {partnerReligionImportant && (
+  <View style={styles.religionInputBlock}>
+    <Text style={styles.label}>What religion would you prefer your partner to be?</Text>
+    <View style={styles.pickerWrapper}>
+      <Picker
+        selectedValue={preferredPartnerReligion}
+        onValueChange={(itemValue) => setPreferredPartnerReligion(itemValue)}
+      >
+        <Picker.Item label="Select a religion..." value="" />
+        {religionOptions.map((religion) => (
+          <Picker.Item key={religion} label={religion} value={religion} />
+        ))}
+      </Picker>
+    </View>
+  </View>
+)}
 
-      <View style={styles.preferenceRow}>
-        <Text>Does it matter to you if your partner drinks?</Text>
-        <Switch value={partnerDrinksOk} onValueChange={setPartnerDrinksOk} />
-      </View>
+      <YesNoSelector
+        label="Is it okay if your partner smokes cigarettes?"
+        value={partnerSmokesOk}
+        onChange={setPartnerSmokesOk}
+      />
+
+      <YesNoSelector
+        label="Is it okay if your partner drinks?"
+        value={partnerDrinksOk}
+        onChange={setPartnerDrinksOk}
+      />
 
       <Button title="Next" onPress={handleNext} />
     </View>
@@ -101,6 +177,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
+    marginBottom: 8,
   },
   input: {
     borderWidth: 1,
@@ -109,9 +186,34 @@ const styles = StyleSheet.create({
     padding: 10,
     marginVertical: 10,
   },
-  preferenceRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+  preferenceBlock: {
+    marginBottom: 20,
   },
+  buttonContainer: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  button: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    backgroundColor: "#eee",
+  },
+  selected: {
+    backgroundColor: "#4f46e5",
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  religionInputBlock: {
+  marginBottom: 20,
+},
+pickerWrapper: {
+  borderWidth: 1,
+  borderColor: "#aaa",
+  borderRadius: 6,
+  overflow: "hidden",
+},
+
 });

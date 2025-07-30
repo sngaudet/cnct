@@ -75,6 +75,7 @@ export type RootStackParamList = {
     preferences: {
     maxDistance: number;
     religionImportant: boolean;
+    preferredReligion: string | null;
     allowsSmoking: boolean;
     allowsDrinking: boolean;
   };

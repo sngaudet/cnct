@@ -19,7 +19,7 @@ const RegPersonalDetails = ({ navigation, route }: Props) => {
   const [smoker, setSmoker] = useState("");
   const [drinker, setDrinker] = useState("");
 
-  const religionOptions = ["Christian", "Jewish", "Muslim", "Hindu", "Buddhist", "Sikh", "Atheist", "Agnostic", "Other"];
+  const religionOptions = ["Select...","Christian", "Jewish", "Muslim", "Hindu", "Buddhist", "Sikh", "Atheist", "Agnostic", "Other"];
   const smokerOptions = ["Select...", "Yes", "Occasionally", "Never"];
   const drinkerOptions = ["Select...", "Yes", "Occasionally", "Never"];
 
