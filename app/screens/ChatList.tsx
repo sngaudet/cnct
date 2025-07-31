@@ -23,54 +23,75 @@ const ChatList = () => {
   const currentUser = FIREBASE_AUTH.currentUser;
 
   useEffect(() => {
-    const fetchUsersWithCommonHobbies = async () => {
-      if (!currentUser) return;
+  const fetchFilteredUsers = async () => {
+    if (!currentUser) return;
 
-      const usersRef = collection(FIRESTORE_DB, "users");
+    const usersRef = collection(FIRESTORE_DB, "users");
 
-      // Get current user's hobbies
-      const currentUserSnapshot = await getDocs(
-        query(usersRef, where("email", "==", currentUser.email))
+    // Step 1: Get current user's data & preferences
+    const currentUserSnapshot = await getDocs(
+      query(usersRef, where("email", "==", currentUser.email))
+    );
+    if (currentUserSnapshot.empty) return;
+
+    const currentUserData = currentUserSnapshot.docs[0].data();
+    const currentUserHobbies: string[] = currentUserData.hobbies || [];
+    const currentPrefs = currentUserData.preferences || {};
+
+    // Step 2: Fetch other users
+    const snapshot = await getDocs(
+      query(usersRef, where("email", "!=", currentUser.email))
+    );
+
+    const matchedUsers: User[] = [];
+
+    snapshot.docs.forEach((doc) => {
+      const data = doc.data();
+      const otherUserHobbies: string[] = data.hobbies || [];
+
+      // Shared hobbies
+      const shared = currentUserHobbies.filter((hobby) =>
+        otherUserHobbies.includes(hobby)
       );
+      if (shared.length === 0) return;
 
-      if (currentUserSnapshot.empty) return;
+      // Preference filtering
+      if (
+        currentPrefs.allowsDrinking === false &&
+        (data.drinker === "Yes" || data.drinker === "Occasionally")
+      ) {
+        return;
+      }
 
-      const currentUserData = currentUserSnapshot.docs[0].data();
-      const currentUserHobbies: string[] = currentUserData.hobbies || [];
+      if (
+        currentPrefs.allowsSmoking === false &&
+        (data.smoker === "Yes" || data.smoker === "Occasionally")
+      ) {
+        return;
+      }
 
-      // Get other users
-      const snapshot = await getDocs(
-        query(usersRef, where("email", "!=", currentUser.email))
-      );
+      if (
+        currentPrefs.religionImportant === true &&
+        currentPrefs.preferredReligion &&
+        data.religion !== currentPrefs.preferredReligion
+      ) {
+        return;
+      }
 
-      const matchedUsers: User[] = [];
-
-      snapshot.docs.forEach((doc) => {
-        const data = doc.data();
-        const otherUserHobbies: string[] = data.hobbies || [];
-
-        // Find shared hobbies
-        const shared = currentUserHobbies.filter((hobby) =>
-          otherUserHobbies.includes(hobby)
-        );
-
-        if (shared.length > 0) {
-          matchedUsers.push({
-            id: doc.id,
-            email: data.email,
-            sharedHobbies: shared.length,
-          });
-        }
+      matchedUsers.push({
+        id: doc.id,
+        email: data.email,
+        sharedHobbies: shared.length,
       });
+    });
 
-      // Sort by number of shared hobbies (descending)
-      matchedUsers.sort((a, b) => b.sharedHobbies - a.sharedHobbies);
+    matchedUsers.sort((a, b) => b.sharedHobbies - a.sharedHobbies);
+    setUsers(matchedUsers);
+  };
 
-      setUsers(matchedUsers);
-    };
+  fetchFilteredUsers();
+}, []);
 
-    fetchUsersWithCommonHobbies();
-  }, []);
 
   const handleUserPress = (otherUser: User) => {
     navigation.navigate("ChatScreen", {
