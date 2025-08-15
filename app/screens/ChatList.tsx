@@ -1,15 +1,13 @@
+// app/screens/ChatList.tsx
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { FIREBASE_AUTH, FIRESTORE_DB } from "../../FirebaseConfig";
 import { InsideStackParamList } from "../navigation/types";
 
-type NavigationProp = NativeStackNavigationProp<
-  InsideStackParamList,
-  "ChatScreen"
->;
+type NavigationProp = NativeStackNavigationProp<InsideStackParamList, "ChatScreen">;
 
 type User = {
   id: string;
@@ -23,75 +21,119 @@ const ChatList = () => {
   const currentUser = FIREBASE_AUTH.currentUser;
 
   useEffect(() => {
-  const fetchFilteredUsers = async () => {
-    if (!currentUser) return;
+    const fetchAndSetMatch = async () => {
+      if (!currentUser) return;
 
-    const usersRef = collection(FIRESTORE_DB, "users");
+      const usersRef = collection(FIRESTORE_DB, "users");
 
-    // Step 1: Get current user's data & preferences
-    const currentUserSnapshot = await getDocs(
-      query(usersRef, where("email", "==", currentUser.email))
-    );
-    if (currentUserSnapshot.empty) return;
-
-    const currentUserData = currentUserSnapshot.docs[0].data();
-    const currentUserHobbies: string[] = currentUserData.hobbies || [];
-    const currentPrefs = currentUserData.preferences || {};
-
-    // Step 2: Fetch other users
-    const snapshot = await getDocs(
-      query(usersRef, where("email", "!=", currentUser.email))
-    );
-
-    const matchedUsers: User[] = [];
-
-    snapshot.docs.forEach((doc) => {
-      const data = doc.data();
-      const otherUserHobbies: string[] = data.hobbies || [];
-
-      // Shared hobbies
-      const shared = currentUserHobbies.filter((hobby) =>
-        otherUserHobbies.includes(hobby)
+      // Step 1: Get current user data
+      const currentUserSnapshot = await getDocs(
+        query(usersRef, where("email", "==", currentUser.email))
       );
-      if (shared.length === 0) return;
+      if (currentUserSnapshot.empty) return;
 
-      // Preference filtering
-      if (
-        currentPrefs.allowsDrinking === false &&
-        (data.drinker === "Yes" || data.drinker === "Occasionally")
-      ) {
+      const currentUserDoc = currentUserSnapshot.docs[0];
+      const currentUserData = currentUserDoc.data();
+      const currentUserId = currentUserDoc.id;
+      const currentUserHobbies: string[] = currentUserData.hobbies || [];
+      const currentPrefs = currentUserData.preferences || {};
+      const existingMatch = currentUserData.match;
+
+      if (existingMatch && existingMatch.userId) {
+        // A match already exists, show just that user
+        const matchedUserDoc = await getDoc(doc(FIRESTORE_DB, "users", existingMatch.userId));
+        if (matchedUserDoc.exists()) {
+          const matchedUserData = matchedUserDoc.data();
+          const sharedHobbies = currentUserHobbies.filter((hobby) =>
+            (matchedUserData.hobbies || []).includes(hobby)
+          );
+
+          setUsers([
+            {
+              id: matchedUserDoc.id,
+              email: matchedUserData.email,
+              sharedHobbies: sharedHobbies.length,
+            },
+          ]);
+        }
         return;
       }
 
-      if (
-        currentPrefs.allowsSmoking === false &&
-        (data.smoker === "Yes" || data.smoker === "Occasionally")
-      ) {
-        return;
-      }
+      // Step 2: Fetch all other users
+      const snapshot = await getDocs(
+        query(usersRef, where("email", "!=", currentUser.email))
+      );
 
-      if (
-        currentPrefs.religionImportant === true &&
-        currentPrefs.preferredReligion &&
-        data.religion !== currentPrefs.preferredReligion
-      ) {
-        return;
-      }
+      const potentialMatches: User[] = [];
 
-      matchedUsers.push({
-        id: doc.id,
-        email: data.email,
-        sharedHobbies: shared.length,
+      snapshot.docs.forEach((docSnap) => {
+        const data = docSnap.data();
+        const otherUserHobbies: string[] = data.hobbies || [];
+
+        const shared = currentUserHobbies.filter((hobby) =>
+          otherUserHobbies.includes(hobby)
+        );
+        if (shared.length === 0) return;
+
+        if (
+          currentPrefs.allowsDrinking === false &&
+          (data.drinker === "Yes" || data.drinker === "Occasionally")
+        ) {
+          return;
+        }
+
+        if (
+          currentPrefs.allowsSmoking === false &&
+          (data.smoker === "Yes" || data.smoker === "Occasionally")
+        ) {
+          return;
+        }
+
+        if (
+          currentPrefs.religionImportant === true &&
+          currentPrefs.preferredReligion &&
+          data.religion !== currentPrefs.preferredReligion
+        ) {
+          return;
+        }
+
+        potentialMatches.push({
+          id: docSnap.id,
+          email: data.email,
+          sharedHobbies: shared.length,
+        });
       });
-    });
 
-    matchedUsers.sort((a, b) => b.sharedHobbies - a.sharedHobbies);
-    setUsers(matchedUsers);
-  };
+      potentialMatches.sort((a, b) => b.sharedHobbies - a.sharedHobbies);
 
-  fetchFilteredUsers();
-}, []);
+      if (potentialMatches.length > 0) {
+        const bestMatch = potentialMatches[0];
+        const matchTimestamp = new Date();
 
+        // Save match to current user
+        await updateDoc(doc(FIRESTORE_DB, "users", currentUserId), {
+          match: {
+            userId: bestMatch.id,
+            matchedAt: matchTimestamp,
+          },
+        });
+
+        // Save match to matched user
+        await updateDoc(doc(FIRESTORE_DB, "users", bestMatch.id), {
+          match: {
+            userId: currentUserId,
+            matchedAt: matchTimestamp,
+          },
+        });
+
+        setUsers([bestMatch]);
+      } else {
+        setUsers([]); // no matches
+      }
+    };
+
+    fetchAndSetMatch();
+  }, []);
 
   const handleUserPress = (otherUser: User) => {
     navigation.navigate("ChatScreen", {
@@ -103,7 +145,7 @@ const ChatList = () => {
   return (
     <View style={{ flex: 1, padding: 20 }}>
       <Text style={{ fontSize: 18, marginBottom: 10 }}>
-        Start a chat (sorted by shared hobbies):
+        Your match:
       </Text>
       <FlatList
         data={users}
@@ -119,6 +161,7 @@ const ChatList = () => {
             </Text>
           </TouchableOpacity>
         )}
+        ListEmptyComponent={<Text>No match found yet.</Text>}
       />
     </View>
   );
