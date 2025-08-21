@@ -1,13 +1,27 @@
-// app/screens/ChatList.tsx
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import {
+  Text,
+  TouchableOpacity,
+  View
+} from "react-native";
 import { FIREBASE_AUTH, FIRESTORE_DB } from "../../FirebaseConfig";
 import { InsideStackParamList } from "../navigation/types";
 
-type NavigationProp = NativeStackNavigationProp<InsideStackParamList, "ChatScreen">;
+type NavigationProp = NativeStackNavigationProp<
+  InsideStackParamList,
+  "ChatScreen"
+>;
 
 type User = {
   id: string;
@@ -16,153 +30,167 @@ type User = {
 };
 
 const ChatList = () => {
-  const [users, setUsers] = useState<User[]>([]);
+  const [matchedUser, setMatchedUser] = useState<User | null>(null);
+  const [matchExpiryTime, setMatchExpiryTime] = useState<string | null>(null);
   const navigation = useNavigation<NavigationProp>();
   const currentUser = FIREBASE_AUTH.currentUser;
 
   useEffect(() => {
-    const fetchAndSetMatch = async () => {
+    const fetchMatch = async () => {
       if (!currentUser) return;
 
-      const usersRef = collection(FIRESTORE_DB, "users");
+      const currentUserRef = doc(FIRESTORE_DB, "users", currentUser.uid);
+      const currentUserSnap = await getDoc(currentUserRef);
 
-      // Step 1: Get current user data
-      const currentUserSnapshot = await getDocs(
-        query(usersRef, where("email", "==", currentUser.email))
-      );
-      if (currentUserSnapshot.empty) return;
+      if (!currentUserSnap.exists()) return;
+      const currentUserData = currentUserSnap.data();
 
-      const currentUserDoc = currentUserSnapshot.docs[0];
-      const currentUserData = currentUserDoc.data();
-      const currentUserId = currentUserDoc.id;
-      const currentUserHobbies: string[] = currentUserData.hobbies || [];
       const currentPrefs = currentUserData.preferences || {};
-      const existingMatch = currentUserData.match;
+      const currentHobbies: string[] = currentUserData.hobbies || [];
 
-      if (existingMatch && existingMatch.userId) {
-        // A match already exists, show just that user
-        const matchedUserDoc = await getDoc(doc(FIRESTORE_DB, "users", existingMatch.userId));
-        if (matchedUserDoc.exists()) {
-          const matchedUserData = matchedUserDoc.data();
-          const sharedHobbies = currentUserHobbies.filter((hobby) =>
-            (matchedUserData.hobbies || []).includes(hobby)
-          );
+      // Check if there's a valid match
+      if (
+        currentUserData.match &&
+        currentUserData.match.userId &&
+        currentUserData.match.matchedAt?.toDate
+      ) {
+        const matchedAt = currentUserData.match.matchedAt.toDate();
+        const now = new Date();
+        const diff = now.getTime() - matchedAt.getTime();
+        const sevenDays = 7 * 24 * 60 * 60 * 1000;
 
-          setUsers([
-            {
-              id: matchedUserDoc.id,
-              email: matchedUserData.email,
-              sharedHobbies: sharedHobbies.length,
-            },
-          ]);
+        if (diff < sevenDays) {
+          // Match is still valid
+          const otherUserRef = doc(FIRESTORE_DB, "users", currentUserData.match.userId);
+          const otherUserSnap = await getDoc(otherUserRef);
+          if (otherUserSnap.exists()) {
+            const otherUserData = otherUserSnap.data();
+            const sharedHobbies = otherUserData.hobbies?.filter((h: string) =>
+              currentHobbies.includes(h)
+            ).length || 0;
+
+            setMatchedUser({
+              id: currentUserData.match.userId,
+              email: otherUserData.email,
+              sharedHobbies,
+            });
+
+            // Set up countdown timer
+            const calculateTimeRemaining = () => {
+              const expiration = new Date(matchedAt);
+              expiration.setDate(expiration.getDate() + 7);
+              const now = new Date();
+              const diff = expiration.getTime() - now.getTime();
+
+              if (diff <= 0) {
+                setMatchExpiryTime("Expired");
+                return;
+              }
+
+              const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+              const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+              const minutes = Math.floor((diff / (1000 * 60)) % 60);
+              const seconds = Math.floor((diff / 1000) % 60);
+
+              setMatchExpiryTime(
+                `${days}d ${hours}h ${minutes}m ${seconds}s`
+              );
+            };
+
+            calculateTimeRemaining();
+            const interval = setInterval(calculateTimeRemaining, 1000);
+            return () => clearInterval(interval);
+          }
         }
-        return;
       }
 
-      // Step 2: Fetch all other users
-      const snapshot = await getDocs(
-        query(usersRef, where("email", "!=", currentUser.email))
-      );
+      // Otherwise, find a new match
+      const usersRef = collection(FIRESTORE_DB, "users");
+      const snapshot = await getDocs(query(usersRef, where("email", "!=", currentUser.email)));
 
-      const potentialMatches: User[] = [];
+      let bestMatch: User | null = null;
+      let mostShared = 0;
 
-      snapshot.docs.forEach((docSnap) => {
+      for (const docSnap of snapshot.docs) {
         const data = docSnap.data();
-        const otherUserHobbies: string[] = data.hobbies || [];
 
-        const shared = currentUserHobbies.filter((hobby) =>
-          otherUserHobbies.includes(hobby)
-        );
-        if (shared.length === 0) return;
-
+        // Preference filtering
         if (
           currentPrefs.allowsDrinking === false &&
           (data.drinker === "Yes" || data.drinker === "Occasionally")
-        ) {
-          return;
-        }
+        ) continue;
 
         if (
           currentPrefs.allowsSmoking === false &&
           (data.smoker === "Yes" || data.smoker === "Occasionally")
-        ) {
-          return;
-        }
+        ) continue;
 
         if (
-          currentPrefs.religionImportant === true &&
+          currentPrefs.religionImportant &&
           currentPrefs.preferredReligion &&
           data.religion !== currentPrefs.preferredReligion
-        ) {
-          return;
+        ) continue;
+
+        // Shared hobbies
+        const otherHobbies: string[] = data.hobbies || [];
+        const shared = currentHobbies.filter((hobby) => otherHobbies.includes(hobby));
+        if (shared.length > mostShared) {
+          mostShared = shared.length;
+          bestMatch = {
+            id: docSnap.id,
+            email: data.email,
+            sharedHobbies: shared.length,
+          };
         }
+      }
 
-        potentialMatches.push({
-          id: docSnap.id,
-          email: data.email,
-          sharedHobbies: shared.length,
-        });
-      });
-
-      potentialMatches.sort((a, b) => b.sharedHobbies - a.sharedHobbies);
-
-      if (potentialMatches.length > 0) {
-        const bestMatch = potentialMatches[0];
-        const matchTimestamp = new Date();
-
-        // Save match to current user
-        await updateDoc(doc(FIRESTORE_DB, "users", currentUserId), {
+      if (bestMatch) {
+        await updateDoc(currentUserRef, {
           match: {
             userId: bestMatch.id,
-            matchedAt: matchTimestamp,
+            matchedAt: new Date(),
           },
         });
-
-        // Save match to matched user
-        await updateDoc(doc(FIRESTORE_DB, "users", bestMatch.id), {
-          match: {
-            userId: currentUserId,
-            matchedAt: matchTimestamp,
-          },
-        });
-
-        setUsers([bestMatch]);
-      } else {
-        setUsers([]); // no matches
+        setMatchedUser(bestMatch);
       }
     };
 
-    fetchAndSetMatch();
+    fetchMatch();
   }, []);
 
-  const handleUserPress = (otherUser: User) => {
+  const handleUserPress = () => {
+    if (!matchedUser) return;
     navigation.navigate("ChatScreen", {
       chatId: null,
-      userId: otherUser.id,
+      userId: matchedUser.id,
     });
   };
 
   return (
     <View style={{ flex: 1, padding: 20 }}>
       <Text style={{ fontSize: 18, marginBottom: 10 }}>
-        Your match:
+        Your current match:
       </Text>
-      <FlatList
-        data={users}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={() => handleUserPress(item)}
-            style={{ padding: 10, borderBottomWidth: 1 }}
-          >
-            <Text>{item.email}</Text>
-            <Text style={{ color: "gray" }}>
-              Shared hobbies: {item.sharedHobbies}
-            </Text>
-          </TouchableOpacity>
-        )}
-        ListEmptyComponent={<Text>No match found yet.</Text>}
-      />
+
+      {matchExpiryTime && (
+        <Text style={{ color: "green", marginBottom: 10 }}>
+          Time left: {matchExpiryTime}
+        </Text>
+      )}
+
+      {matchedUser ? (
+        <TouchableOpacity
+          onPress={handleUserPress}
+          style={{ padding: 10, borderBottomWidth: 1 }}
+        >
+          <Text>{matchedUser.email}</Text>
+          <Text style={{ color: "gray" }}>
+            Shared hobbies: {matchedUser.sharedHobbies}
+          </Text>
+        </TouchableOpacity>
+      ) : (
+        <Text>No match available.</Text>
+      )}
     </View>
   );
 };
