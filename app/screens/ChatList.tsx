@@ -125,6 +125,9 @@ const ChatList = () => {
         // Skip previous matches
         if (previousMatches.includes(candidateId)) continue;
 
+        // Skip the person if they already have a match
+        if (data.match?.userId) continue;
+
         // Preference checks
         if (
           currentPrefs.allowsDrinking === false &&
@@ -162,6 +165,15 @@ const ChatList = () => {
             matchedAt: new Date(),
           },
         });
+
+          // Update matched user's match
+  const matchedUserRef = doc(FIRESTORE_DB, "users", bestMatch.id);
+  await updateDoc(matchedUserRef, {
+    match: {
+      userId: currentUser.uid,
+      matchedAt: new Date(),
+    },
+  });
 
         setMatchedUser(bestMatch);
 
