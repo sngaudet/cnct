@@ -43,6 +43,8 @@ const RegHobbies = ({ route, navigation }: Props) => {
     religion,
     smoker,
     drinker,
+    gender,
+    seeking,
   } = route.params;
 
   const [selectedHobbies, setSelectedHobbies] = useState<string[]>([]);
@@ -64,6 +66,8 @@ const RegHobbies = ({ route, navigation }: Props) => {
       smoker,
       drinker,
       hobbies: selectedHobbies,
+      gender,
+      seeking,
     });
   };
 

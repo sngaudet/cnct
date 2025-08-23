@@ -1,22 +1,19 @@
+import { Picker } from "@react-native-picker/picker";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import React, { useState } from "react";
 import {
-  View,
-  StyleSheet,
-  TextInput,
   Button,
   KeyboardAvoidingView,
+  StyleSheet,
   Text,
+  View
 } from "react-native";
-import React, { useState } from "react";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/types";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Picker } from "@react-native-picker/picker";
 
 type Props = NativeStackScreenProps<RootStackParamList, "RegHeightWeight">;
 
 const RegHeightWeight = ({ navigation, route }: Props) => {
-  const { email, password, location } = route.params;
+  const { email, password, location, gender, seeking } = route.params;
 
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
@@ -43,12 +40,15 @@ const RegHeightWeight = ({ navigation, route }: Props) => {
       alert("Please enter all fields");
       return;
     }
+
     navigation.navigate("RegPersonalDetails", {
       email,
       password,
+      location,
+      gender,
+      seeking,
       height,
       weight,
-      location,
     });
   };
 

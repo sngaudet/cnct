@@ -15,6 +15,7 @@ import Details from "./app/screens/Details";
 import List from "./app/screens/List";
 import Login from "./app/screens/Login";
 import RegEmailPass from "./app/screens/RegEmailPass";
+import RegGender from "./app/screens/RegGender";
 import RegHeightWeight from "./app/screens/RegHeightWeight";
 import RegHobbies from "./app/screens/RegHobbies";
 import RegLocation from "./app/screens/RegLocation";
@@ -102,6 +103,11 @@ export default function App() {
               name="RegLocation"
               component={RegLocation}
               options={{ title: "Location" }}
+            />
+                        <Stack.Screen
+              name="RegGender"
+              component={RegGender}
+              options={{ title: "Gender" }}
             />
             <Stack.Screen
               name="RegProfile"

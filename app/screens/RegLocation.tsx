@@ -30,6 +30,7 @@ type FullLocation = {
 type Props = NativeStackScreenProps<RootStackParamList, "RegLocation">;
 
 const RegLocation = ({ navigation, route }: Props) => {
+  const { email, password } = route.params;
   const [location, setLocation] = useState<FullLocation | null>(null);
   const [loading, setLoading] = useState(false);
   const [manualMode, setManualMode] = useState(false);
@@ -94,7 +95,7 @@ const handleNext = async () => {
         return;
       }
 
-      navigation.navigate("RegHeightWeight", {
+      navigation.navigate("RegGender", {
         ...route.params,
         location: {
           latitude: geometry.lat,
@@ -102,6 +103,8 @@ const handleNext = async () => {
           city: manualCity,
           state: manualState,
         },
+        email,
+        password,
       });
     } catch (error) {
       console.error("Forward geocoding failed:", error);
@@ -116,7 +119,7 @@ const handleNext = async () => {
     return;
   }
 
-  navigation.navigate("RegHeightWeight", {
+  navigation.navigate("RegGender", {
     ...route.params,
     location: {
       latitude: location.coords.latitude,

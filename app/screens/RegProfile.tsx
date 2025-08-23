@@ -27,6 +27,8 @@ const RegProfile = ({ route, navigation }: Props) => {
     drinker,
     hobbies,
     preferences,
+    gender,
+    seeking,
   } = route.params;
   console.log("Incoming:", {
     email,
@@ -38,6 +40,8 @@ const RegProfile = ({ route, navigation }: Props) => {
     smoker,
     drinker,
     hobbies,
+    gender,
+    seeking,
   });
   const [bio, setBio] = useState("");
   const [loading, setLoading] = useState(false);
@@ -71,7 +75,8 @@ const RegProfile = ({ route, navigation }: Props) => {
         hobbies,
         preferences,
         bio,
-        isMatched: false,
+        gender,
+        seeking,
         profileComplete: true,
         createdAt: new Date(),
       });

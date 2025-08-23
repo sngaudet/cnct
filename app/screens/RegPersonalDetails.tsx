@@ -13,7 +13,7 @@ import { RootStackParamList } from "../navigation/types";
 type Props = NativeStackScreenProps<RootStackParamList, "RegPersonalDetails">;
 
 const RegPersonalDetails = ({ navigation, route }: Props) => {
-  const { email, password, height, weight, location } = route.params;
+  const { email, password, height, weight, location, gender, seeking } = route.params;
 
   const [religion, setReligion] = useState("");
   const [smoker, setSmoker] = useState("");
@@ -46,6 +46,8 @@ const RegPersonalDetails = ({ navigation, route }: Props) => {
       smoker,
       drinker,
       location,
+      gender,
+      seeking,
     });
   };
 
