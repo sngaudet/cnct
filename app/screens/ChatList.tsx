@@ -19,6 +19,32 @@ import {
 import { FIREBASE_AUTH, FIRESTORE_DB } from "../../FirebaseConfig";
 import { InsideStackParamList } from "../navigation/types";
 
+function calculateDistanceInMiles(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
+  const toRad = (value: number) => (value * Math.PI) / 180;
+
+  const R = 3958.8; // Radius of the Earth in miles
+
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c; // distance in miles
+}
+
+
 type NavigationProp = NativeStackNavigationProp<
   InsideStackParamList,
   "ChatScreen"
@@ -127,6 +153,22 @@ const ChatList = () => {
 
         // Skip the person if they already have a match
         if (data.match?.userId) continue;
+
+        // Check distance
+        const distance = calculateDistanceInMiles(
+  currentUserData.location.latitude,
+  currentUserData.location.longitude,
+  data.location.latitude,
+  data.location.longitude
+);
+
+if (
+  distance > (currentUserData.preferences?.maxDistance ?? Infinity) ||
+  distance > (data.preferences?.maxDistance ?? Infinity)
+) {
+  continue; // skip if too far for either user
+}
+
 
         // Preference checks
         if (
