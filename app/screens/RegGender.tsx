@@ -2,18 +2,19 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useState } from "react";
 import {
-    Button,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Button,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { RootStackParamList } from "../navigation/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "RegGender">;
 
-const genders = ["Man", "Woman", "Non-binary", "Other"];
-const seekingOptions = ["Men", "Women", "Non-binary", "Everyone"];
+const genders = ["Man", "Woman", "Non-binary", "Transgender man", "Transgender woman", "Genderqueer", "Agender", "Genderfluid", "Other"];
+const seekingOptions = ["Man", "Woman", "Non-binary", "Transgender man", "Transgender woman", "Genderqueer", "Agender", "Genderfluid", "Other", "Everyone"];
 
 const RegGender = ({ navigation, route }: Props) => {
   const { email, password, location } = route.params;
@@ -44,6 +45,7 @@ const RegGender = ({ navigation, route }: Props) => {
   };
 
   return (
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
     <View style={styles.container}>
       <Text style={styles.label}>Your Gender:</Text>
       {genders.map((g) => (
@@ -69,6 +71,7 @@ const RegGender = ({ navigation, route }: Props) => {
 
       <Button title="Next" onPress={handleNext} />
     </View>
+    </ScrollView>
   );
 };
 
@@ -96,4 +99,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#cce5ff",
     borderColor: "#3399ff",
   },
+  scrollContainer: {
+  padding: 20,
+},
 });

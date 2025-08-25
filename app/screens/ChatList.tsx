@@ -169,6 +169,19 @@ if (
   continue; // skip if too far for either user
 }
 
+// Gender seeking compatibility
+const currentGender: string = currentUserData.gender;
+const currentSeeking: string[] = currentUserData.seeking || [];
+const otherGender: string = data.gender;
+const otherSeeking: string[] = data.seeking || [];
+
+const seekingMatch = currentSeeking.includes("Everyone") || currentSeeking.includes(otherGender);
+const reciprocalMatch = otherSeeking.includes("Everyone") || otherSeeking.includes(currentGender);
+
+if (!seekingMatch || !reciprocalMatch) {
+  continue;
+}
+
 
         // Preference checks
         if (
