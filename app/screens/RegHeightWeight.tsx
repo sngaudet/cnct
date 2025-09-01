@@ -13,7 +13,7 @@ import { RootStackParamList } from "../navigation/types";
 type Props = NativeStackScreenProps<RootStackParamList, "RegHeightWeight">;
 
 const RegHeightWeight = ({ navigation, route }: Props) => {
-  const { email, password, location, gender, seeking } = route.params;
+  const { email, password, location, gender, seeking, photos } = route.params;
 
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
@@ -49,6 +49,7 @@ const RegHeightWeight = ({ navigation, route }: Props) => {
       seeking,
       height,
       weight,
+      photos,
     });
   };
 

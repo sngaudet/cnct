@@ -21,6 +21,14 @@ RegGender: {
   };
 };
 
+RegPhotos: {
+  email: string;
+  password: string;
+  location: { latitude: number; longitude: number; city?: string; state?: string };
+  gender: string;
+  seeking: string[];
+};
+
   RegHeightWeight: {
     email: string;
     password: string;
@@ -32,6 +40,7 @@ RegGender: {
     };
       gender: string;
   seeking: string[];
+    photos: string[];
   };
   RegPersonalDetails: {
     email: string;
@@ -46,6 +55,7 @@ RegGender: {
     };
       gender: string;
   seeking: string[];
+    photos: string[];
   };
   RegHobbies: {
     email: string;
@@ -63,6 +73,7 @@ RegGender: {
     };
       gender: string;
   seeking: string[];
+    photos: string[];
   };
     RegPreferences: {
     email: string;
@@ -76,6 +87,7 @@ RegGender: {
     hobbies: string[];
       gender: string;
   seeking: string[];
+    photos: string[];
   };
   RegProfile: {
     email: string;
@@ -86,6 +98,7 @@ RegGender: {
     smoker: string;
     drinker: string;
     hobbies: string[];
+      photos: string[];
     location: {
       latitude: number;
       longitude: number;

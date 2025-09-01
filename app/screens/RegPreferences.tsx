@@ -69,6 +69,7 @@ const RegPreferences = ({ route, navigation }: Props) => {
     hobbies,
     gender,
     seeking,
+    photos,
   } = route.params;
 
   const [maxDistance, setMaxDistance] = useState("25");
@@ -112,6 +113,7 @@ const RegPreferences = ({ route, navigation }: Props) => {
       },
       gender,
       seeking,
+      photos,
     });
   };
 

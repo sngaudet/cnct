@@ -35,7 +35,7 @@ const RegGender = ({ navigation, route }: Props) => {
       return;
     }
 
-    navigation.navigate("RegHeightWeight", {
+    navigation.navigate("RegPhotos", {
       email,
       password,
       location,
