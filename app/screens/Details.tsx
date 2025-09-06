@@ -1,5 +1,5 @@
-import { View, Text } from "react-native";
 import React from "react";
+import { Text, View } from "react-native";
 
 const Details = () => {
   return (
@@ -10,3 +10,5 @@ const Details = () => {
 };
 
 export default Details;
+
+// test push
